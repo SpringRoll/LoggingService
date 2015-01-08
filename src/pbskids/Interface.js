@@ -59,6 +59,13 @@
 		 */
 		this.clearButton = $("#clearButton")
 			.click(this.onClear.bind(this)); 
+
+		/**
+		 * Filter list for the event codes
+		 * @property {jquery} filterList
+		 */
+		this.filterList = $("#filterList")
+			.change(this.onFilter.bind(this));
 	};
 
 	// Reference to the prototype
@@ -81,6 +88,26 @@
 	};
 
 	/**
+	 * Handler for the filter change
+	 * @method onFilter
+	 */
+	p.onFilter = function()
+	{
+		var code = parseInt(this.filterList.val());
+
+		if (code)
+		{
+			$('.event').addClass('hidden')
+				.filter('.code-'+code)
+				.removeClass('hidden');
+		}
+		else
+		{
+			$('.event').removeClass('hidden');
+		}
+	};
+
+	/**
 	 * Export the data for the current channel
 	 * @method onExport
 	 */
@@ -88,7 +115,7 @@
 	{
 		this.current.clear();
 		this.getChannel(this.current.id).children().remove();
-		this.resetControls();
+		this.enableControls(false);
 	};
 
 	/**
@@ -152,7 +179,7 @@
 		// the currently selected channel
 		if (channelId == this.current.id)
 		{
-			this.resetControls();
+			this.enableControls(false);
 		}
 		this.getChannel(channelId).remove();
 		button.parent().remove();
@@ -161,12 +188,20 @@
 
 	/**
 	 *  Disable the buttons
-	 *  @method resetControls
+	 *  @method enableControls
 	 */
-	p.resetControls = function()
+	p.enableControls = function(enabled)
 	{
-		this.exportButton.addClass('disabled');
-		this.clearButton.addClass('disabled');
+		this.exportButton.removeClass('disabled');
+		this.clearButton.removeClass('disabled');
+		this.filterList.removeClass('disabled');
+
+		if (!enabled)
+		{
+			this.exportButton.addClass('disabled');
+			this.clearButton.addClass('disabled');
+			this.filterList.addClass('disabled');
+		}
 	};
 
 	/**
@@ -199,12 +234,14 @@
 			.show()
 			.data('channel');
 
-		this.resetControls();
+		this.enableControls(false);
+
 		if (this.current.events.length)
 		{
-			this.exportButton.removeClass('disabled');
-			this.clearButton.removeClass('disabled');
+			this.enableControls(true);
 		}
+
+		this.refreshFilters();
 	};
 
 	/**
@@ -216,28 +253,63 @@
 	p.addEvent = function(channelId, data)
 	{
 		var channel = this.getChannel(channelId);
-		if (channel.length)
-		{
-			data = _.cloneDeep(data);
-
-			// Move the event code up a level
-			// we'll exclude it from the list but still
-			// will show it.
-			data.event_code = data.event_data.event_code;
-			delete data.event_data.event_code;
-
-			_.each(data.event_data, function(value, name){
-				data.event_data[name] = JSON.stringify(value);
-			});
-
-			this.exportButton.removeClass('disabled');
-			this.clearButton.removeClass('disabled');
-			channel.append($(this.getTemplate('channel-event', data)));
-		}
-		else
+		if (!channel.length)
 		{
 			throw "Unable to find a channel in the interface " + channelId;
 		}
+
+		data = _.cloneDeep(data);
+
+		// Move the event code up a level
+		// we'll exclude it from the list but still
+		// will show it.
+		data.event_code = data.event_data.event_code;
+		delete data.event_data.event_code;
+
+		_.each(data.event_data, function(value, name){
+			data.event_data[name] = JSON.stringify(value);
+		});
+
+		this.enableControls(true);
+
+		channel.append($(this.getTemplate('channel-event', data)));
+
+		this.refreshFilters();
+	};
+
+	p.refreshFilters = function()
+	{
+		var selection = parseInt(this.filterList.val());
+
+		// remove all
+		this.filterList.children(".code").remove();
+
+		if (this.current && this.current.events.length)
+		{
+			// Find all the unique event code
+			var codes = [];
+			_.each(this.current.events, function(event){
+				var code = event.event_data.event_code;
+				if (codes.indexOf(code) === -1)
+				{
+					codes.push(code);
+				}
+			});
+
+			// Order the code
+			codes.sort();
+
+			// Add the options to the list
+			_.each(codes, function(code){
+				this.filterList.append(
+					this.getTemplate('option', { 
+						value: code,
+						selected: code == selection ? 'selected' : ''
+					})
+				);
+			}, this);
+		}
+		this.onFilter();
 	};
 
 	/**
