@@ -1,0 +1,13 @@
+<div class="event collapsed">
+	<div class="event-toggle">
+		<%= event_code %>
+		<span class="glyphicon glyphicon-plus on"></span>
+		<span class="glyphicon glyphicon-minus off"></span>
+	</div>
+	<% _.each(event_data, function(value, name) { %>
+		<div class="event-data">
+			<span class="event-key"><%= name %></span>
+			<span class="event-value"><%= value %></span>
+		</div>
+	<% }); %>
+</div>

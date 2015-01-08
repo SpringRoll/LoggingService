@@ -1,2 +1,4 @@
-# LoggingService
-Progress Tracker Logging Service App
+LoggingService
+============
+
+Progress Tracker logging service

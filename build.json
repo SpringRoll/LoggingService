@@ -1,0 +1,27 @@
+{
+	"name": "LoggingService",
+	"version": "0.0.1",
+	"main": [
+		"components/node-webkit-app/src/utils/Browser.js",
+		"components/node-webkit-app/src/NodeWebkitApp.js",
+		"src/pbskids/Channel.js",
+		"src/pbskids/ChannelManager.js",
+		"src/pbskids/Interface.js",
+		"src/pbskids/LoggingService.js",
+		"src/pbskids/LoggingService.less"
+	],
+	"libraries": [
+		"components/jquery/dist/jquery.min.js",
+		"components/bootstrap/dist/js/bootstrap.min.js",
+		"components/bootstrap/less/bootstrap.less",
+		"components/bootstrap/less/theme.less",
+		"components/cloudkid-namespace/namespace.js"
+	],
+	"librariesDebug": [
+		"components/jquery/dist/jquery.js",
+		"components/bootstrap/dist/js/bootstrap.js",
+		"components/bootstrap/less/bootstrap.less",
+		"components/bootstrap/less/theme.less",
+		"components/cloudkid-namespace/namespace.js"
+	]
+}
