@@ -4,6 +4,7 @@
 	"main": [
 		"components/node-webkit-app/src/utils/Browser.js",
 		"components/node-webkit-app/src/NodeWebkitApp.js",
+		"src/pbskids/Events.js",
 		"src/pbskids/Channel.js",
 		"src/pbskids/ChannelManager.js",
 		"src/pbskids/Interface.js",

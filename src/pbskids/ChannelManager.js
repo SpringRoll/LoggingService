@@ -21,6 +21,13 @@
 		 * @private
 		 */
 		this._channels = [];
+
+
+		/**
+		 *  How many channels are opened
+		 *  @property {int} length
+		 */
+		this.length = 0;
 	};
 
 	// reference to the protptype
@@ -32,6 +39,7 @@
 	 */
 	p.clear = function()
 	{
+		this.length = 0;
 		this._channels.length = 0;
 	};
 
@@ -48,6 +56,7 @@
 		{
 			channel = new Channel(name);
 			this._channels.push(channel);
+			this.length++;
 		}
 		return channel;
 	};
@@ -98,7 +107,8 @@
 		// Destroy the removed channels
 		_.each(channels, function(channel){
 			channel.destroy();
-		});
+			this.length--;
+		}, this);
 	};
 
 	/**

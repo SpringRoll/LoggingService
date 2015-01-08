@@ -8,12 +8,23 @@
 		<script src="assets/js/libraries.js"></script>
 		<script src="assets/js/main.js"></script>
 	</head>
-	<body>
+	<body class="empty">
 		<div class="frame">
+			<div class="helpMessage">
+				<div class="title">
+					No Channels Available
+				</div>
+				<div class="info">
+					Try connecting <code>pbskids.Tracker</code> to 
+					<code id="ipAddress"></code>.
+				</div>
+			</div>
 			<sidebar>
+				<h2>Channels</h2>
 				<div id="buttons"></div>
 			</sidebar>
 			<article>
+				<h2>Event History</h2>
 				<nav class="controls">
 					<button class="btn btn-sm btn-primary disabled" id="exportButton">
 						<span class="glyphicon glyphicon-save"></span>

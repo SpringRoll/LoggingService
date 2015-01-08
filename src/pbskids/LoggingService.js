@@ -79,6 +79,11 @@
 	p.onRemove = function(channelId)
 	{
 		this.channels.removeChannel(channelId);
+
+		if (!this.channels.length)
+		{
+			this.ui.enabled = false;
+		}
 	};
 
 	/**
@@ -128,10 +133,22 @@
 		}
 	};
 
-	p.newChannel = function(channeId)
+	/**
+	 * Create a new channel
+	 * @method newChannel
+	 * @param {string} channelId The channel id
+	 */
+	p.newChannel = function(channelId)
 	{
-		channel = this.channels.addChannel(channeId);
+		channel = this.channels.addChannel(channelId);
 		this.ui.addChannel(channel);
+		this.ui.enabled = true;
+
+		// Download the spec if it's available
+		// var specUrl = 'http://stage.pbskids.org/progresstracker/api/v2/games/'+channelId+'/events-spec.json';
+		// $.getJSON(specUrl, function(result){
+		// 	console.log(result);
+		// });
 		return channel;
 	};
 

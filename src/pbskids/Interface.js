@@ -3,10 +3,12 @@
 	if (APP)
 	{
 		var _ = require('lodash'),
-			fs = require('fs');
+			fs = require('fs'),
+			ip = require('ip');
 	}
 
-	var Browser = cloudkid.Browser;
+	var Browser = cloudkid.Browser,
+		Events = pbskids.Events;
 
 	/**
 	 * The interface UI tools
@@ -66,10 +68,30 @@
 		 */
 		this.filterList = $("#filterList")
 			.change(this.onFilter.bind(this));
+
+		// Add the local ip address
+		$("#ipAddress").html(ip.address());
+
+		this.enabled = false;
 	};
 
 	// Reference to the prototype
 	var p = Interface.prototype;
+
+	/**
+	 * If the interface has any content
+	 * @property {boolean} enabled
+	 */
+	Object.defineProperty(p, 'enabled', {
+		set: function(enabled)
+		{
+			var body = $('body').removeClass('empty');
+			if (!enabled)
+			{
+				body.addClass('empty');
+			}
+		}
+	});
 
 	/**
 	 * Export the data for the current channel
@@ -148,7 +170,6 @@
 			list = this.getChannel(channel.id);
 			list.data('channel', channel);
 		}
-
 		this.selectChannel(channel.id);
 	};
 
@@ -265,6 +286,9 @@
 		// will show it.
 		data.event_code = data.event_data.event_code;
 		delete data.event_data.event_code;
+
+		// Get the name of the event if we have it
+		data.name = Events.getName(data.event_code);
 
 		_.each(data.event_data, function(value, name){
 			data.event_data[name] = JSON.stringify(value);
