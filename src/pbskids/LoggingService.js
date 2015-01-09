@@ -145,10 +145,14 @@
 		this.ui.enabled = true;
 
 		// Download the spec if it's available
-		// var specUrl = 'http://stage.pbskids.org/progresstracker/api/v2/games/'+channelId+'/events-spec.json';
-		// $.getJSON(specUrl, function(result){
-		// 	console.log(result);
-		// });
+		var specUrl = 'http://stage.pbskids.org/progresstracker/'+
+			'api/v2/games/'+channelId+'/events-spec.json';
+
+		$.getJSON(specUrl, function(result){
+			channel.spec = result.events;
+		}).fail(function(){
+			alert("Unable to load an event specification for this game. Event validation will be ignored.");
+		});
 		return channel;
 	};
 

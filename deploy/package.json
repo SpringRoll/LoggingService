@@ -1,31 +1,31 @@
 {
-  "name": "LoggingService",
-  "description": "Progress Tracker logging service",
-  "version": "0.0.1",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/springroll/LoggingService"
-  },
-  "main": "index.html",
-  "single-instance": true,
-  "window": {
-    "icon": "assets/images/icon.png",
-    "show": false,
-    "toolbar": false,
-    "frame": true,
-    "position": "center",
-    "width": 680,
-    "height": 400,
-    "min_width": 580,
-    "min_height": 275,
-    "resizable": true
-  },
-  "webkit": {
-    "plugin": true
-  },
-  "dependencies": {
-    "ip": "^0.3.2",
-    "lodash": "^2.4.1",
-    "ws": "^0.6.5"
-  }
+	"name": "LoggingService",
+	"description": "Progress Tracker logging service",
+	"version": "0.0.2",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/springroll/LoggingService"
+	},
+	"main": "index.html",
+	"single-instance": true,
+	"window": {
+		"icon": "assets/images/icon.png",
+		"show": false,
+		"toolbar": false,
+		"frame": true,
+		"position": "center",
+		"width": 680,
+		"height": 400,
+		"min_width": 580,
+		"min_height": 275,
+		"resizable": true
+	},
+	"webkit": {
+		"plugin": true
+	},
+	"dependencies": {
+		"ip": "^0.3.2",
+		"lodash": "^2.4.1",
+		"ws": "^0.6.5"
+	}
 }

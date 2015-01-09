@@ -8,9 +8,29 @@
 	 */
 	var Channel = function(name)
 	{
+		/**
+		 * The name of the game, human readable
+		 * @property {string} name
+		 */
 		this.name = name;
+
+		/**
+		 * The DOM-safe id for the channel
+		 * @property {string} id
+		 */
 		this.id = name.replace(/[^a-zA-Z0-9\-\_]/g, '').toLowerCase();
+
+		/**
+		 * The collection of events, keep around to save
+		 * @property {array} events
+		 */
 		this.events = [];
+
+		/**
+		 * The event specification
+		 * @property {object} spec
+		 */
+		this.spec = null;
 	};
 
 	// Reference to the prototype

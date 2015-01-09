@@ -1,15 +1,28 @@
-<div class="event collapsed code-<%= event_code %>">
+<div class="event collapsed code-<%= eventCode %> <%= eventClass %>">
 	<div class="event-toggle">
-		<span class="event-code"><%= event_code %></span>
+		<span class="event-status"></span>
+		<span class="event-code"><%= eventCode %></span>
 		<span class="event-name"><%= name %></span>
 		<span class="glyphicon glyphicon-plus on"></span>
 		<span class="glyphicon glyphicon-minus off"></span>
 	</div>
 	<div class="event-data-container">
-	<% _.each(event_data, function(value, name) { %>
-		<div class="event-data <%= name %>">
-			<span class="event-key"><%= name %></span>
-			<span class="event-value"><%= value %></span>
+	<% if ( eventError ) { %>
+		<div class="alert alert-danger">
+			<span class="glyphicon glyphicon-exclamation-sign"></span>
+			<%= eventError %>
+		</div>
+	<% } %>
+	<% _.each(eventFields, function(data) { %>
+		<div class="event-data <%= data.name %> <%= data.className %>">
+			<% if ( data.message ) { %>
+				<div class="alert alert-danger">
+					<span class="glyphicon glyphicon-exclamation-sign"></span>
+					<%= data.message %>
+				</div>
+			<% } %>
+			<span class="event-key"><%= data.name %></span>
+			<span class="event-value"><%= data.value %></span>
 		</div>
 	<% }); %>
 	</div>

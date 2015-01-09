@@ -85,6 +85,19 @@ body {
 			}
 		}
 		.event {
+			.event-status {
+				width: 10px;
+				height: 10px;
+				background: #ccc;
+				border-radius: 15px;
+				display:inline-block;
+				margin-right:10px;
+			}
+			.alert {
+				font-size: 12px;
+				padding: 8px 10px;
+				margin: 5px 0;
+			}
 			.event-toggle {
 				font-size:16px;
 				font-weight: lighter;
@@ -128,6 +141,13 @@ body {
 				overflow: hidden;
 			}
 
+			&.success .event-status { background:#19CA0D }
+			&.error {
+				.event-status { background:#D01212 }
+				.event-code,
+				.event-name { color: #c00 }
+			}
+
 			&.collapsed {
 				.on { display:block }
 				.off { display:none }
@@ -163,6 +183,12 @@ body {
 					font-family: 'SourceCodePro';
 					border-left: 1px dotted #ccc;
 					color:#333;
+				}
+				&.error {
+					.event-key,
+					.event-value {
+						color: #c00;
+					}
 				}
 			}
 		}

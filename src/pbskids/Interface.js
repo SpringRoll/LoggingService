@@ -8,7 +8,8 @@
 	}
 
 	var Browser = cloudkid.Browser,
-		Events = pbskids.Events;
+		Events = pbskids.Events,
+		EventUtils = pbskids.EventUtils;
 
 	/**
 	 * The interface UI tools
@@ -137,7 +138,7 @@
 	{
 		this.current.clear();
 		this.getChannel(this.current.id).children().remove();
-		this.enableControls(false);
+		this.controlsEnabled = false;
 	};
 
 	/**
@@ -200,7 +201,7 @@
 		// the currently selected channel
 		if (channelId == this.current.id)
 		{
-			this.enableControls(false);
+			this.controlsEnabled = false;
 		}
 		this.getChannel(channelId).remove();
 		button.parent().remove();
@@ -209,21 +210,23 @@
 
 	/**
 	 *  Disable the buttons
-	 *  @method enableControls
+	 *  @property {boolean} controlsEnabled
 	 */
-	p.enableControls = function(enabled)
-	{
-		this.exportButton.removeClass('disabled');
-		this.clearButton.removeClass('disabled');
-		this.filterList.removeClass('disabled');
-
-		if (!enabled)
+	Object.defineProperty(p, 'controlsEnabled', {
+		set: function(enabled)
 		{
-			this.exportButton.addClass('disabled');
-			this.clearButton.addClass('disabled');
-			this.filterList.addClass('disabled');
+			this.exportButton.removeClass('disabled');
+			this.clearButton.removeClass('disabled');
+			this.filterList.removeClass('disabled');
+
+			if (!enabled)
+			{
+				this.exportButton.addClass('disabled');
+				this.clearButton.addClass('disabled');
+				this.filterList.addClass('disabled');
+			}
 		}
-	};
+	});
 
 	/**
 	 * Get a channel by id
@@ -255,11 +258,11 @@
 			.show()
 			.data('channel');
 
-		this.enableControls(false);
+		this.controlsEnabled = false;
 
 		if (this.current.events.length)
 		{
-			this.enableControls(true);
+			this.controlsEnabled = true;
 		}
 
 		this.refreshFilters();
@@ -279,28 +282,90 @@
 			throw "Unable to find a channel in the interface " + channelId;
 		}
 
-		data = _.cloneDeep(data);
+		// Grab the event code
+		var eventCode = data.event_data.event_code;
 
-		// Move the event code up a level
-		// we'll exclude it from the list but still
-		// will show it.
-		data.event_code = data.event_data.event_code;
-		delete data.event_data.event_code;
+		var args = null;
+		var eventError = null;
+		var eventClass = '';
+		var hasTypeError = false;
 
-		// Get the name of the event if we have it
-		data.name = Events.getName(data.event_code);
+		if (this.current.spec)
+		{
+			args = this.current.spec[eventCode];
+			args = args ? args.args : null;
+		}
 
-		_.each(data.event_data, function(value, name){
-			data.event_data[name] = JSON.stringify(value);
-		});
+		// The collection of event data fields
+		var eventFields = [];
+		var eventDataCopy = _.clone(data.event_data);
+		delete eventDataCopy.event_code;
 
-		this.enableControls(true);
+		_.each(eventDataCopy, function(value, name){
+			var message = null;
+			var className = '';
+			if (args)
+			{
+				try
+				{
+					EventUtils.validate(args, name, value);
+				}
+				catch(e)
+				{
+					hasTypeError = true;
+					className = 'error';
+					message = e.message;
+					console.error(e.stack);
+				}
+			}
+			eventFields.push({
+				name: name, 
+				value: JSON.stringify(value),
+				message: message,
+				className: className
+			});
+		}, this);
 
-		channel.append($(this.getTemplate('channel-event', data)));
+		if (args)
+		{
+			if (args.length != eventFields.length)
+			{
+				eventClass = 'error';
+				eventError = "Incorrect number of arguments, expecting " + 
+					args.length + " but got " + eventFields.length;
+			}
+			else if (hasTypeError)
+			{
+				eventClass = 'error';
+			}
+			else
+			{
+				eventClass = 'success';
+			}
+		}
 
+		// Add the template to the DOM
+		channel.append(
+			$(this.getTemplate('channel-event', {
+				eventCode: eventCode,
+				name: Events.getName(eventCode),
+				eventFields: eventFields,
+				eventClass: eventClass,
+				eventError: eventError
+			}))
+		);
+
+		// Turn on the controls now that we have content
+		this.controlsEnabled = true;
+
+		// Refresh the filter selection
 		this.refreshFilters();
 	};
 
+	/**
+	 * Refresh the list of filters in the dropdown
+	 * @method refreshFilters
+	 */
 	p.refreshFilters = function()
 	{
 		var selection = parseInt(this.filterList.val());
@@ -328,6 +393,7 @@
 				this.filterList.append(
 					this.getTemplate('option', { 
 						value: code,
+						name: Events.getName(code),
 						selected: code == selection ? 'selected' : ''
 					})
 				);
