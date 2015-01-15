@@ -21,10 +21,16 @@
 		this.id = name.replace(/[^a-zA-Z0-9\-\_]/g, '').toLowerCase();
 
 		/**
-		 * The collection of events, keep around to save
-		 * @property {array} events
+		 * The collection of progress tracker events, keep around to save
+		 * @property {array} ptEvents
 		 */
-		this.events = [];
+		this.ptEvents = [];
+
+		/**
+		 * The collection of google analytic events, keep around to save
+		 * @property {array} gaEvents
+		 */
+		this.gaEvents = [];
 
 		/**
 		 * The event specification
@@ -38,22 +44,41 @@
 
 	/**
 	 *  Add a new events
-	 *  @method add
+	 *  @method ptAdd
 	 *  @param {object} data The event data
 	 */
-	p.add = function(data)
+	p.ptAdd = function(data)
 	{
-		this.events.push(data);
+		this.ptEvents.push(data);
+	};
+
+	/**
+	 *  Add a new events
+	 *  @method gaAdd
+	 *  @param {object} data The event data
+	 */
+	p.gaAdd = function(data)
+	{
+		this.gaEvents.push(data);
 	};
 
 	/**
 	 *  Clear events
-	 *  @method clear
+	 *  @method ptClear
 	 */
-	p.clear = function()
+	p.ptClear = function()
 	{
-		this.events.length = 0;
-	};	
+		this.ptEvents.length = 0;
+	};
+
+	/**
+	 *  Clear events
+	 *  @method gaClear
+	 */
+	p.gaClear = function()
+	{
+		this.gaEvents.length = 0;
+	};		
 
 	/**
 	 *  Remove, don't use after this
@@ -61,7 +86,8 @@
 	 */
 	p.destroy = function()
 	{
-		this.events = null;
+		this.ptEvents = null;
+		this.gaEvents = null;
 	};
 
 	namespace('pbskids').Channel = Channel;

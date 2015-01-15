@@ -61,7 +61,27 @@
 		 * @property {jquery} clearButton
 		 */
 		this.clearButton = $("#clearButton")
-			.click(this.onClear.bind(this)); 
+			.click(this.onClear.bind(this));
+
+		/**
+		 * Show Google Analytic Events
+		 * @property {jquery} gaButton
+		 */
+		this.gaButton = $("#gaButton")
+			.click(this.onGA.bind(this));
+
+		/**
+		 * Show Progress Tracker event
+		 * @property {jquery} ptButton
+		 */
+		this.ptButton = $("#ptButton")
+			.click(this.onPT.bind(this));
+
+		/**
+		 * If we're clear
+		 * @property {boolean} isPT
+		 */
+		this.isPT = true;
 
 		/**
 		 * Filter list for the event codes
@@ -100,7 +120,11 @@
 	 */
 	p.onExport = function()
 	{
-		var data = JSON.stringify(this.current.events, null, "\t");
+		var events = this.isPT ? 
+			this.current.ptEvents : 
+			this.current.gaEvents;
+			
+		var data = JSON.stringify(events, null, "\t");
 		Browser.saveAs(
 			function(filename)
 			{
@@ -108,6 +132,43 @@
 			},
 			this.current.name + ".json"
 		);
+	};
+
+	/**
+	 * When GA button is clicked
+	 * @method onGA
+	 */
+	p.onGA = function()
+	{
+		this.isPT = false;
+		this.channels
+			.removeClass('show-pt')
+			.addClass('show-ga');
+
+		this.gaButton.addClass('active');
+		this.ptButton.removeClass('active');
+		this.filterList.hide();
+
+		this.refreshControls();
+	};
+
+	/**
+	 * When PT button is clicked
+	 * @method onPT
+	 */
+	p.onPT = function()
+	{
+		this.isPT = true;
+		this.channels
+			.removeClass('show-ga')
+			.addClass('show-pt');
+
+		this.ptButton.addClass('active');
+		this.gaButton.removeClass('active');
+		this.filterList.show();
+
+		this.refreshControls();
+		this.refreshFilters();
 	};
 
 	/**
@@ -136,8 +197,18 @@
 	 */
 	p.onClear = function()
 	{
-		this.current.clear();
-		this.getChannel(this.current.id).children().remove();
+		if (this.isPT)
+		{
+			this.current.ptClear();
+		}
+		else
+		{
+			this.current.gaClear();
+		}
+		this.getChannel(this.current.id)
+			.children(this.isPT ? ".pt" : ".ga")
+			.remove();
+
 		this.controlsEnabled = false;
 	};
 
@@ -209,6 +280,22 @@
 	};
 
 	/**
+	 * Refresh the controls
+	 * @method refreshControls
+	 */
+	p.refreshControls = function()
+	{
+		if (!this.current)
+		{
+			this.controlsEnabled = false;
+		}
+
+		this.controlsEnabled = this.isPT ? 
+			!!this.current.ptEvents.length :
+			!!this.current.gaEvents.length;
+	};
+
+	/**
 	 *  Disable the buttons
 	 *  @property {boolean} controlsEnabled
 	 */
@@ -258,23 +345,44 @@
 			.show()
 			.data('channel');
 
-		this.controlsEnabled = false;
+		this.refreshControls();
 
-		if (this.current.events.length)
+		if (this.isPT)
 		{
-			this.controlsEnabled = true;
+			this.refreshFilters();
 		}
-
-		this.refreshFilters();
 	};
 
 	/**
 	 * Select a channel
-	 * @method addEvent
+	 * @method addGAEvent
 	 * @param {string} channelId The channel unique ID
 	 * @param {object} data The data to add
 	 */
-	p.addEvent = function(channelId, data)
+	p.addGAEvent = function(channelId, data)
+	{
+		var channel = this.getChannel(channelId);
+		if (!channel.length)
+		{
+			throw "Unable to find a channel in the interface " + channelId;
+		}
+
+		// Add the template to the DOM
+		channel.append(
+			$(this.getTemplate('channel-ga-event', data))
+		);
+
+		// Turn on the controls now that we have content
+		this.controlsEnabled = true;
+	};
+
+	/**
+	 * Select a channel
+	 * @method addPTEvent
+	 * @param {string} channelId The channel unique ID
+	 * @param {object} data The data to add
+	 */
+	p.addPTEvent = function(channelId, data)
 	{
 		var channel = this.getChannel(channelId);
 		if (!channel.length)
@@ -346,7 +454,7 @@
 
 		// Add the template to the DOM
 		channel.append(
-			$(this.getTemplate('channel-event', {
+			$(this.getTemplate('channel-pt-event', {
 				eventCode: eventCode,
 				name: Events.getName(eventCode),
 				eventFields: eventFields,
@@ -373,11 +481,11 @@
 		// remove all
 		this.filterList.children(".code").remove();
 
-		if (this.current && this.current.events.length)
+		if (this.current && this.current.ptEvents.length)
 		{
 			// Find all the unique event code
 			var codes = [];
-			_.each(this.current.events, function(event){
+			_.each(this.current.ptEvents, function(event){
 				var code = event.event_data.event_code;
 				if (codes.indexOf(code) === -1)
 				{

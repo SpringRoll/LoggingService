@@ -105,6 +105,12 @@
 			return;
 		}
 
+		if (!response.type)
+		{
+			console.warn("Message type not recognized: " + response.type);
+			return;
+		}
+
 		switch(response.type)
 		{
 			case "session": 
@@ -112,6 +118,7 @@
 				this.newChannel(response.channel);
 				break;
 			}
+			case "pt-event":
 			case "event":
 			{
 				channel = this.channels.getChannel(response.channel);
@@ -119,16 +126,25 @@
 				{
 					channel = this.newChannel(response.channel);
 				}
-				channel = this.channels.addEvent(
+				channel = this.channels.addPTEvent(
 					channel.id,
 					response.data
 				);
-				this.ui.addEvent(channel.id, response.data);
+				this.ui.addPTEvent(channel.id, response.data);
 				break;
 			}
-			default:
+			case "ga-event":
 			{
-				throw "Unrecognized message " + result;
+				channel = this.channels.getChannel(response.channel);
+				if (!channel)
+				{
+					channel = this.newChannel(response.channel);
+				}
+				channel = this.channels.addGAEvent(
+					channel.id,
+					response.data
+				);
+				break;
 			}
 		}
 	};

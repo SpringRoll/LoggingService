@@ -113,19 +113,37 @@
 
 	/**
 	 * Add an event by channel name
-	 * @method addEvent
+	 * @method addPTEvent
 	 * @param {string} name The name of the channel
 	 * @param {object} data The data of the event
 	 * @return {pbskids.Channel} The added channel
 	 */
-	p.addEvent = function(name, data)
+	p.addPTEvent = function(name, data)
 	{
 		var channel = this.getChannelByName(name);
 		if (!channel)
 		{
 			throw "No channel found matching name '" + name + "'";
 		}
-		channel.add(data);
+		channel.ptAdd(data);
+		return channel;
+	};
+
+	/**
+	 * Add an event by channel name
+	 * @method addGAEvent
+	 * @param {string} name The name of the channel
+	 * @param {object} data The data of the event
+	 * @return {pbskids.Channel} The added channel
+	 */
+	p.addGAEvent = function(name, data)
+	{
+		var channel = this.getChannelByName(name);
+		if (!channel)
+		{
+			throw "No channel found matching name '" + name + "'";
+		}
+		channel.gaAdd(data);
 		return channel;
 	};
 
