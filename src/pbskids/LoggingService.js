@@ -18,7 +18,7 @@
 	*/
 	var LoggingService = function()
 	{
-		NodeWebkitApp.call(this);
+		NodeWebkitApp.call(this, 0);
 
 		/**
 		 * The new websocket server
