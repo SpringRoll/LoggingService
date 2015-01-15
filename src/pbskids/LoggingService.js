@@ -7,7 +7,8 @@
 
 	if (APP)
 	{
-		var WebSocketServer = require('ws').Server;
+		var WebSocketServer = require('ws').Server,
+			_ = require('lodash');
 	}
 
 	/**
@@ -119,11 +120,16 @@
 				{
 					channel = this.newChannel(response.channel);
 				}
-				channel = this.channels.addEvent(
-					channel.id,
-					response.data
-				);
-				this.ui.addEvent(channel.id, response.data);
+				// If the spec is still loading, add to the buffer
+				// and we'll add the event after it's done
+				if (channel.specLoading)
+				{
+					channel.eventsBuffer.push(response.data);
+				}
+				else
+				{
+					this.addEvent(channel.id, response.data);
+				}
 				break;
 			}
 			default:
@@ -131,6 +137,18 @@
 				throw "Unrecognized message " + result;
 			}
 		}
+	};
+
+	/**
+	 * Add an event
+	 * @method addEvent
+	 * @param {string} id   The channel id
+	 * @param {object} data The event data collected
+	 */
+	p.addEvent = function(id, data)
+	{
+		this.channels.addEvent(id, data);
+		this.ui.addEvent(id, data);
 	};
 
 	/**
@@ -144,16 +162,48 @@
 		this.ui.addChannel(channel);
 		this.ui.enabled = true;
 
-		// Download the spec if it's available
-		var specUrl = 'http://stage.pbskids.org/progresstracker/'+
-			'api/v2/games/'+channelId+'/events-spec.json';
+		// Try to load for the first time
+		if (channel.spec === null)
+		{
+			// Download the spec if it's available
+			var specUrl = 'http://stage.pbskids.org/progresstracker/'+
+				'api/v2/games/'+channelId+'/events-spec.json';
 
-		$.getJSON(specUrl, function(result){
-			channel.spec = result.events;
-		}).fail(function(){
-			alert("Unable to load an event specification for this game. Event validation will be ignored.");
-		});
+			// Start the loading of the spec
+			channel.specLoading = true;
+
+			// Fetch the spec
+			$.getJSON(specUrl, 
+				function(result)
+				{
+					channel.spec = result.events;
+					this.processBuffer(channel);
+				}.bind(this)
+			// Unable to download, probably a 404
+			).fail(
+				function()
+				{
+					channel.spec = false;
+					alert("Unable to load an event specification for this game. Event validation will be ignored.");
+					this.processBuffer(channel);
+				}.bind(this)
+			);
+		}
 		return channel;
+	};
+
+	/**
+	 * Process the events in the channel's buffer
+	 * @method  processBuffer
+	 * @param  {pbskids.Channel} channel The selected channel
+	 */
+	p.processBuffer = function(channel)
+	{
+		channel.specLoading = false;
+		_.each(channel.eventsBuffer, function(data){
+			this.addEvent(channel.id, data);
+		}, this);
+		channel.eventsBuffer.length = 0;
 	};
 
 	/**

@@ -27,8 +27,20 @@
 		this.events = [];
 
 		/**
-		 * The event specification
-		 * @property {object} spec
+		 * The collection of event to buffer before loading spec
+		 * @property {Array} eventsBuffer
+		 */
+		this.eventsBuffer = [];
+
+		/**
+		 * If we're waiting for the spec to load
+		 * @property {Boolean} specLoading
+		 */
+		this.specLoading = false;
+
+		/**
+		 * The event specification, if no spec set to false
+		 * @property {object|boolean} spec
 		 */
 		this.spec = null;
 	};
@@ -61,6 +73,7 @@
 	 */
 	p.destroy = function()
 	{
+		this.eventsBuffer = null;
 		this.events = null;
 	};
 
