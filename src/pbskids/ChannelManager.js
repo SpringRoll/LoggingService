@@ -113,19 +113,20 @@
 
 	/**
 	 * Add an event by channel name
-	 * @method addEvent
+	 * @method addPTEvent
+	 * @param {string} type Either "ga" or "pt"
 	 * @param {string} name The name of the channel
 	 * @param {object} data The data of the event
 	 * @return {pbskids.Channel} The added channel
 	 */
-	p.addEvent = function(name, data)
+	p.addEvent = function(type, name, data)
 	{
 		var channel = this.getChannelByName(name);
 		if (!channel)
 		{
 			throw "No channel found matching name '" + name + "'";
 		}
-		channel.add(data);
+		channel.add(type, data);
 		return channel;
 	};
 

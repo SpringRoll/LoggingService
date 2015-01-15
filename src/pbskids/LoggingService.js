@@ -106,6 +106,12 @@
 			return;
 		}
 
+		if (!response.type)
+		{
+			console.warn("Message type not recognized: " + response.type);
+			return;
+		}
+
 		switch(response.type)
 		{
 			case "session": 
@@ -113,6 +119,7 @@
 				this.newChannel(response.channel);
 				break;
 			}
+			case "pt-event":
 			case "event":
 			{
 				channel = this.channels.getChannel(response.channel);
@@ -124,17 +131,23 @@
 				// and we'll add the event after it's done
 				if (channel.specLoading)
 				{
-					channel.eventsBuffer.push(response.data);
+					channel.addBuffer("pt", response.data);
 				}
 				else
 				{
-					this.addEvent(channel.id, response.data);
+					this.addEvent("pt", channel.id, response.data);
 				}
 				break;
 			}
-			default:
+			case "ga-event":
 			{
-				throw "Unrecognized message " + result;
+				channel = this.channels.getChannel(response.channel);
+				if (!channel)
+				{
+					channel = this.newChannel(response.channel);
+				}
+				this.addEvent("ga", channel.id, response.data);
+				break;
 			}
 		}
 	};
@@ -142,13 +155,14 @@
 	/**
 	 * Add an event
 	 * @method addEvent
+	 * @param {string} type Either "pt" or "ga"
 	 * @param {string} id   The channel id
 	 * @param {object} data The event data collected
 	 */
-	p.addEvent = function(id, data)
+	p.addEvent = function(type, id, data)
 	{
-		this.channels.addEvent(id, data);
-		this.ui.addEvent(id, data);
+		this.channels.addEvent(type, id, data);
+		this.ui.addEvent(type, id, data);
 	};
 
 	/**
@@ -159,6 +173,7 @@
 	p.newChannel = function(channelId)
 	{
 		channel = this.channels.addChannel(channelId);
+
 		this.ui.addChannel(channel);
 		this.ui.enabled = true;
 
@@ -200,10 +215,11 @@
 	p.processBuffer = function(channel)
 	{
 		channel.specLoading = false;
-		_.each(channel.eventsBuffer, function(data){
-			this.addEvent(channel.id, data);
+		var buffer = channel.getBuffer('pt');
+		_.each(buffer, function(data){
+			this.addEvent("pt", channel.id, data);
 		}, this);
-		channel.eventsBuffer.length = 0;
+		buffer.length = 0;
 	};
 
 	/**

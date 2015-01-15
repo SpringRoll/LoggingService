@@ -61,7 +61,28 @@
 		 * @property {jquery} clearButton
 		 */
 		this.clearButton = $("#clearButton")
-			.click(this.onClear.bind(this)); 
+			.click(this.onClear.bind(this));
+
+		/**
+		 * Show Google Analytic Events
+		 * @property {jquery} gaButton
+		 */
+		this.gaButton = $("#gaButton")
+			.click(this.onGA.bind(this));
+
+		/**
+		 * Show Progress Tracker event
+		 * @property {jquery} ptButton
+		 */
+		this.ptButton = $("#ptButton")
+			.click(this.onPT.bind(this));
+
+		/**
+		 * If we're clear
+		 * @property {string} view
+		 * @default "pt"
+		 */
+		this.view = "pt";
 
 		/**
 		 * Filter list for the event codes
@@ -100,7 +121,12 @@
 	 */
 	p.onExport = function()
 	{
-		var data = JSON.stringify(this.current.events, null, "\t");
+		var data = JSON.stringify(
+			this.current.get(this.view),
+			null, 
+			"\t"
+		);
+
 		Browser.saveAs(
 			function(filename)
 			{
@@ -108,6 +134,43 @@
 			},
 			this.current.name + ".json"
 		);
+	};
+
+	/**
+	 * When GA button is clicked
+	 * @method onGA
+	 */
+	p.onGA = function()
+	{
+		this.view = "ga";
+		this.channels
+			.removeClass('show-pt')
+			.addClass('show-ga');
+
+		this.gaButton.addClass('active');
+		this.ptButton.removeClass('active');
+		this.filterList.hide();
+
+		this.refreshControls();
+	};
+
+	/**
+	 * When PT button is clicked
+	 * @method onPT
+	 */
+	p.onPT = function()
+	{
+		this.view = "pt";
+		this.channels
+			.removeClass('show-ga')
+			.addClass('show-pt');
+
+		this.ptButton.addClass('active');
+		this.gaButton.removeClass('active');
+		this.filterList.show();
+
+		this.refreshControls();
+		this.refreshFilters();
 	};
 
 	/**
@@ -136,8 +199,12 @@
 	 */
 	p.onClear = function()
 	{
-		this.current.clear();
-		this.getChannel(this.current.id).children().remove();
+		this.current.clear(this.view);
+
+		this.getChannel(this.current.id)
+			.children("." + this.view)
+			.remove();
+
 		this.controlsEnabled = false;
 	};
 
@@ -209,6 +276,21 @@
 	};
 
 	/**
+	 * Refresh the controls
+	 * @method refreshControls
+	 */
+	p.refreshControls = function()
+	{
+		if (!this.current)
+		{
+			this.controlsEnabled = false;
+		}
+
+		// If we have events on the current channel
+		this.controlsEnabled = !!this.current.get(this.view).length;
+	};
+
+	/**
 	 *  Disable the buttons
 	 *  @property {boolean} controlsEnabled
 	 */
@@ -258,23 +340,21 @@
 			.show()
 			.data('channel');
 
-		this.controlsEnabled = false;
+		this.refreshControls();
 
-		if (this.current.events.length)
+		if (this.view == "pt")
 		{
-			this.controlsEnabled = true;
+			this.refreshFilters();
 		}
-
-		this.refreshFilters();
 	};
 
 	/**
 	 * Select a channel
-	 * @method addEvent
+	 * @method addGAEvent
 	 * @param {string} channelId The channel unique ID
 	 * @param {object} data The data to add
 	 */
-	p.addEvent = function(channelId, data)
+	p.addEvent = function(type, channelId, data)
 	{
 		var channel = this.getChannel(channelId);
 		if (!channel.length)
@@ -282,84 +362,97 @@
 			throw "Unable to find a channel in the interface " + channelId;
 		}
 
-		// Grab the event code
-		var eventCode = data.event_data.event_code;
-
-		var args = null;
-		var eventError = null;
-		var eventClass = '';
-		var hasTypeError = false;
-
-		if (this.current.spec)
+		if (type == "ga")
 		{
-			args = this.current.spec[eventCode];
-			args = args ? args.args : null;
+			data = _.clone(data);
+			
+			data.label = _.isUndefined(data.label) ? null : data.label;
+			data.value = _.isUndefined(data.value) ? null : data.value;
+			// Add the template to the DOM
+			channel.append(
+				$(this.getTemplate('channel-ga-event', data))
+			);
 		}
+		else if (type == "pt")
+		{
+			// Grab the event code
+			var eventCode = data.event_data.event_code;
+			var args = null;
+			var eventError = null;
+			var eventClass = '';
+			var hasTypeError = false;
 
-		// The collection of event data fields
-		var eventFields = [];
-		var eventDataCopy = _.clone(data.event_data);
-		delete eventDataCopy.event_code;
+			if (this.current.spec)
+			{
+				args = this.current.spec[eventCode];
+				args = args ? args.args : null;
+			}
 
-		_.each(eventDataCopy, function(value, name){
-			var message = null;
-			var className = '';
+			// The collection of event data fields
+			var eventFields = [];
+			var eventDataCopy = _.clone(data.event_data);
+			delete eventDataCopy.event_code;
+
+			_.each(eventDataCopy, function(value, name){
+				var message = null;
+				var className = '';
+				if (args)
+				{
+					try
+					{
+						EventUtils.validate(args, name, value);
+					}
+					catch(e)
+					{
+						hasTypeError = true;
+						className = 'error';
+						message = e.message;
+						console.error(e.stack);
+					}
+				}
+				eventFields.push({
+					name: name, 
+					value: JSON.stringify(value),
+					message: message,
+					className: className
+				});
+			}, this);
+
 			if (args)
 			{
-				try
+				if (args.length != eventFields.length)
 				{
-					EventUtils.validate(args, name, value);
+					eventClass = 'error';
+					eventError = "Incorrect number of arguments, expecting " + 
+						args.length + " but got " + eventFields.length;
 				}
-				catch(e)
+				else if (hasTypeError)
 				{
-					hasTypeError = true;
-					className = 'error';
-					message = e.message;
-					console.error(e.stack);
+					eventClass = 'error';
+				}
+				else
+				{
+					eventClass = 'success';
 				}
 			}
-			eventFields.push({
-				name: name, 
-				value: JSON.stringify(value),
-				message: message,
-				className: className
-			});
-		}, this);
 
-		if (args)
-		{
-			if (args.length != eventFields.length)
-			{
-				eventClass = 'error';
-				eventError = "Incorrect number of arguments, expecting " + 
-					args.length + " but got " + eventFields.length;
-			}
-			else if (hasTypeError)
-			{
-				eventClass = 'error';
-			}
-			else
-			{
-				eventClass = 'success';
-			}
+			// Add the template to the DOM
+			channel.append(
+				$(this.getTemplate('channel-pt-event', {
+					eventCode: eventCode,
+					name: Events.getName(eventCode),
+					eventFields: eventFields,
+					eventClass: eventClass,
+					eventError: eventError
+				}))
+			);
+
+			// Refresh the filter selection
+			this.refreshFilters();
 		}
-
-		// Add the template to the DOM
-		channel.append(
-			$(this.getTemplate('channel-event', {
-				eventCode: eventCode,
-				name: Events.getName(eventCode),
-				eventFields: eventFields,
-				eventClass: eventClass,
-				eventError: eventError
-			}))
-		);
-
+		
 		// Turn on the controls now that we have content
 		this.controlsEnabled = true;
-
-		// Refresh the filter selection
-		this.refreshFilters();
 	};
 
 	/**
@@ -373,11 +466,11 @@
 		// remove all
 		this.filterList.children(".code").remove();
 
-		if (this.current && this.current.events.length)
+		if (this.current && this.current.ptEvents.length)
 		{
 			// Find all the unique event code
 			var codes = [];
-			_.each(this.current.events, function(event){
+			_.each(this.current.ptEvents, function(event){
 				var code = event.event_data.event_code;
 				if (codes.indexOf(code) === -1)
 				{

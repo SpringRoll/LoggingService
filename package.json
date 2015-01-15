@@ -1,6 +1,6 @@
 {
 	"name": "LoggingService",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"private": true,
 	"dependencies": {
 		"grunt": "~0.4.5",

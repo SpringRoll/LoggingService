@@ -3,10 +3,10 @@
 	<head>
 		<meta charset="utf-8">
 		<title>LoggingService</title>
-		<link href="assets/css/libraries.css?v=0.0.3" rel="stylesheet">
-		<link href="assets/css/main.css?v=0.0.3" rel="stylesheet">
-		<script src="assets/js/libraries.js?v=0.0.3"></script>
-		<script src="assets/js/main.js?v=0.0.3"></script>
+		<link href="assets/css/libraries.css?v=0.0.4" rel="stylesheet">
+		<link href="assets/css/main.css?v=0.0.4" rel="stylesheet">
+		<script src="assets/js/libraries.js?v=0.0.4"></script>
+		<script src="assets/js/main.js?v=0.0.4"></script>
 	</head>
 	<body class="empty">
 		<div class="frame">
@@ -26,11 +26,15 @@
 			<article>
 				<h2>Event History</h2>
 				<nav class="controls">
-					<button class="btn btn-sm btn-primary disabled" id="exportButton">
+					<div class="btn-group">
+						<button class="btn btn-sm btn-primary active" id="ptButton">PT</button>
+						<button class="btn btn-sm btn-primary" id="gaButton">GA</button>
+					</div>
+					<button class="btn btn-sm btn-default disabled" id="exportButton">
 						<span class="glyphicon glyphicon-save"></span>
 						Save
 					</button>
-					<select class="btn btn-sm btn-primary form-control disabled" id="filterList">
+					<select class="pt btn btn-sm btn-default form-control disabled" id="filterList">
 						<option value="0" selected>Show All</option>
 					</select>
 					<button class="btn btn-sm btn-danger pull-right disabled" id="clearButton">
@@ -38,7 +42,7 @@
 						Clear
 					</button>
 				</nav>
-				<div id="channels"></div>
+				<div id="channels" class="show-pt"></div>
 			</article>
 		</div>
 	</body>
