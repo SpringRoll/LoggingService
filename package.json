@@ -1,11 +1,11 @@
 {
 	"name": "LoggingService",
-	"version": "0.0.5",
+	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
 		"grunt": "~0.4.5",
-		"project-grunt": "*",
-		"grunt-node-webkit-builder": "~0.2.2",
-		"grunt-exec": "~0.4.6"
+		"grunt-exec": "~0.4.6",
+		"grunt-node-webkit-builder": "~1.0.0",
+		"project-grunt": "*"
 	}
 }

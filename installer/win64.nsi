@@ -3,8 +3,8 @@
 !define DESCRIPTION "Progress Tracker logging service"
 # These three must be integers
 !define VERSIONMAJOR 0
-!define VERSIONMINOR 0
-!define VERSIONBUILD 5
+!define VERSIONMINOR 1
+!define VERSIONBUILD 0
 # These will be displayed by the "Click here for support information" link in "Add/Remove Programs"
 # It is possible to use "mailto:" links in here to open the email client
 !define HELPURL "https://github.com/springroll/LoggingService/issues"
@@ -15,7 +15,7 @@ Name "${APPNAME}"
 Icon "..\deploy\assets\images\icon.ico"
 
 # define the resulting installer's name:
-OutFile "..\build\${APPNAME}-Setup.exe"
+OutFile "..\build\${APPNAME}-Setup-x64.exe"
 
 # Destintation install directory
 InstallDir "$PROGRAMFILES\${APPNAME}"
@@ -29,12 +29,12 @@ Section
   # specify the files to go in the output path
   # these are the Windows files produced by grunt-node-webkit-builder
   File "../deploy/assets/images/icon.ico"
-  File "../build/${APPNAME}/win/ffmpegsumo.dll"
-  File "../build/${APPNAME}/win/icudtl.dat"
-  File "../build/${APPNAME}/win/libEGL.dll"
-  File "../build/${APPNAME}/win/libGLESv2.dll"
-  File "../build/${APPNAME}/win/nw.pak"
-  File "../build/${APPNAME}/win/${APPNAME}.exe"
+  File "../build/${APPNAME}/win64/ffmpegsumo.dll"
+  File "../build/${APPNAME}/win64/icudtl.dat"
+  File "../build/${APPNAME}/win64/libEGL.dll"
+  File "../build/${APPNAME}/win64/libGLESv2.dll"
+  File "../build/${APPNAME}/win64/nw.pak"
+  File "../build/${APPNAME}/win64/${APPNAME}.exe"
 
   # define the uninstaller name
   WriteUninstaller "$INSTDIR\Uninstall.exe"
