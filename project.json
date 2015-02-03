@@ -1,6 +1,6 @@
 {
 	"name": "LoggingService",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"main": [
 		"components/node-webkit-app/src/utils/Browser.js",
 		"components/node-webkit-app/src/utils/UpdateChecker.js",

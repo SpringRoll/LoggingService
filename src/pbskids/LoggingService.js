@@ -182,7 +182,8 @@
 		{
 			// Download the spec if it's available
 			var specUrl = 'http://stage.pbskids.org/progresstracker/'+
-				'api/v2/games/'+channelId+'/events-spec.json';
+				'api/v2/games/'+channelId+'/events-spec.json?release=true&cb='+
+				Date.now();
 
 			// Start the loading of the spec
 			channel.specLoading = true;
