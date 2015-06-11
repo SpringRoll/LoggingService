@@ -5,6 +5,7 @@ module.exports = function(grunt)
 	grunt.registerTask('app', 'Build the Application', function(platform)
 	{
 		grunt.task.run(
+			'jade:release',
 			'clean:main',
 			'jshint:main',
 			'uglify:app',
@@ -20,6 +21,7 @@ module.exports = function(grunt)
 	grunt.registerTask('app-debug', 'Build the Application in debug mode', function(platform)
 	{
 		grunt.task.run(
+			'jade:debug',
 			'clean:main',
 			'jshint:main',
 			'concat:main',
@@ -37,12 +39,16 @@ module.exports = function(grunt)
 	// on the user's platform
 	grunt.registerTask('package', function(platform)
 	{
-		var tasks = ['clean:installers'];
+		var tasks = [];
 
 		// Package a single platform
-		if (platform)
+		if (/win/.test(platform))
 		{
 			tasks.push('exec:package' + platform);
+		}
+		else if (/osx/.test(platform))
+		{
+			tasks.push('appdmg:' + platform);
 		}
 		// Package all platforms
 		else
@@ -50,8 +56,8 @@ module.exports = function(grunt)
 			tasks.push(
 				'exec:packagewin32',
 				'exec:packagewin64',
-				'exec:packageosx32',
-				'exec:packageosx64'
+				'appdmg:osx32',
+				'appdmg:osx64'
 			);
 		}
 		grunt.task.run(tasks);	

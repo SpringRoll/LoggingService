@@ -1,0 +1,37 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		title LoggingService
+		link(href='assets/css/libraries.css?v=#{version}', rel='stylesheet')
+		link(href='assets/css/main.css?v=#{version}', rel='stylesheet')
+		script(src='assets/js/libraries.js?v=#{version}')
+		script(src='assets/js/main.js?v=#{version}')
+	body.empty: .frame
+		.helpMessage
+			.title
+				| No Channels Available
+			.info
+				| Try connecting 
+				code pbskids.Tracker
+				|  to 
+				code#ipAddress
+				| .
+		sidebar
+			h2 Channels
+			#buttons
+		article
+			h2 Event History
+			nav.controls
+				.btn-group
+					button#ptButton.btn.btn-sm.btn-primary.active PT
+					button#gaButton.btn.btn-sm.btn-primary GA
+				button#exportButton.btn.btn-sm.btn-default.disabled
+					span.glyphicon.glyphicon-save
+					| 						Save
+				select#filterList.pt.btn.btn-sm.btn-default.form-control.disabled
+					option(value='0', selected='') Show All
+				button#clearButton.btn.btn-sm.btn-danger.pull-right.disabled
+					span.glyphicon.glyphicon-trash
+					|  Clear
+			#channels.show-pt

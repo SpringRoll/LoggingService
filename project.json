@@ -1,18 +1,18 @@
 {
 	"name": "LoggingService",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"main": [
 		"components/node-webkit-app/src/utils/Browser.js",
 		"components/node-webkit-app/src/utils/UpdateChecker.js",
 		"components/node-webkit-app/src/NodeWebkitApp.js",
-		"src/pbskids/Events.js",
-		"src/pbskids/ValidationError.js",
-		"src/pbskids/EventUtils.js",
-		"src/pbskids/Channel.js",
-		"src/pbskids/ChannelManager.js",
-		"src/pbskids/Interface.js",
-		"src/pbskids/LoggingService.js",
-		"src/pbskids/LoggingService.less"
+		"src/js/Events.js",
+		"src/js/ValidationError.js",
+		"src/js/EventUtils.js",
+		"src/js/Channel.js",
+		"src/js/ChannelManager.js",
+		"src/js/Interface.js",
+		"src/js/LoggingService.js",
+		"src/less/main.less"
 	],
 	"libraries": [
 		"components/jquery/dist/jquery.min.js",
