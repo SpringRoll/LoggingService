@@ -25,7 +25,7 @@
 		"3120": "End IncorrectFeedback",
 		"3021": "Start CorrectFeedback",
 		"3121": "End CorrectFeedback",
-		"4010": "Select Level",
+		"4010": "Click Play",
 		"4020": "Select Answer",
 		"4030": "Start Drag",
 		"4035": "End DragOutside",
